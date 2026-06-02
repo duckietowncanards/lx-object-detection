@@ -47,7 +47,8 @@ class MLModel:
 
             print(f"Detection: {x1}-{x2}, {y1}-{y2}, {score}")
             # TODO we don't want to consider detections with confidence (score) below CONF_THRESHOLD (a value you should set in config.py)
-
+            if score < CONF_THRESHOLD:
+                continue
 
             # TODO we want to stop if there is a duckie closer than STOP_DISTANCE away
             # To calculate if the duckie is too close we need to convert the pixel coordinates to 
@@ -57,6 +58,17 @@ class MLModel:
             # point, you can first convert it to a vector (`vec = self.ground_projector.camera.pixel2vector(pix)`) and
             # then you can intersect that vector with the ground plane (`self.ground_projector.vector2ground(vec)`). 
             # That will be the point on the ground plane corresponding to the input pixel. 
+
+            pix = Pixel((x1 + x2)/2, y2)
+            vec = self.ground_projector.camera.pixel2vector(pix)
+
+            ground = self.ground_projector.vector2ground(vec)
+
+            dist = np.sqrt(ground.x ** 2 + ground.y ** 2)
+
+            if dist <= STOP_DISTANCE:
+                stop = True
+                break
 
         return stop
 
